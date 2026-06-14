@@ -78,10 +78,14 @@ app.get(
           ],
         }
       : {};
-    const orderBy =
-      req.query.orderBy === "favorite"
-        ? { favoriteCount: "desc" }
-        : { createdAt: "desc" };
+    let orderBy;
+    if (req.query.orderBy === "favorite") {
+      orderBy = { likeCount: "desc" };
+    } else if (req.query.orderBy === "oldest") {
+      orderBy = { createdAt: "asc" };
+    } else {
+      orderBy = { createdAt: "desc" }; // recent
+    }
 
     const [products, totalCount] = await Promise.all([
       prisma.product.findMany({
