@@ -29,7 +29,7 @@ const articleSelect = {
   content: true,
   createdAt: true,
   image: true,
-  ownerImage: true,
+  ownerId: true,
   likeCount: true,
 };
 
