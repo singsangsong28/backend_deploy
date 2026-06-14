@@ -78,13 +78,15 @@ app.get(
           ],
         }
       : {};
+
     let orderBy;
+
     if (req.query.orderBy === "favorite") {
       orderBy = { likeCount: "desc" };
     } else if (req.query.orderBy === "oldest") {
       orderBy = { createdAt: "asc" };
     } else {
-      orderBy = { createdAt: "desc" }; // recent
+      orderBy = { createdAt: "desc" };
     }
 
     const [products, totalCount] = await Promise.all([
@@ -217,7 +219,17 @@ app.get(
     const offset = Math.max(Number(req.query.offset) || 0, 0);
     const limit = getPositiveInt(req.query.limit, 10);
     const keyword = req.query.keyword?.trim();
-    const orderBy = req.query.orderBy === "recent" ? "recent" : "recent";
+
+    let orderBy;
+
+    if (req.query.orderBy === "favorite") {
+      orderBy = { likeCount: "desc" };
+    } else if (req.query.orderBy === "oldest") {
+      orderBy = { createdAt: "asc" };
+    } else {
+      orderBy = { createdAt: "desc" }; // recent
+    }
+
     const where = keyword
       ? {
           OR: [
