@@ -232,7 +232,7 @@ app.get(
         where,
         skip: offset,
         take: limit,
-        orderBy: orderBy === "recent" ? { createdAt: "desc" } : undefined,
+        orderBy,
         select: articleSelect,
       }),
       prisma.article.count({ where }),
