@@ -1,12 +1,8 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import cors from "cors";
 import prisma from "./db.js";
 import { asyncHandler } from "./utils/asyncHandler.js";
-import {
-  createProductSchema,
-  updateProductSchema,
-} from "./validators/productValidator.js";
 import {
   createArticleSchema,
   updateArticleSchema,
@@ -15,6 +11,10 @@ import {
   createCommentSchema,
   updateCommentSchema,
 } from "./validators/commentValidator.js";
+import {
+  createProductSchema,
+  updateProductSchema,
+} from "./validators/productValidator.js";
 
 dotenv.config();
 
@@ -28,6 +28,9 @@ const articleSelect = {
   title: true,
   content: true,
   createdAt: true,
+  image: true,
+  ownerImage: true,
+  likeCount: true,
 };
 
 const commentSelect = {
@@ -247,7 +250,9 @@ app.get(
     const articleId = getArticleId(req.params.id);
 
     if (!articleId) {
-      return res.status(400).json({ message: "게시글 id가 올바르지 않습니다." });
+      return res
+        .status(400)
+        .json({ message: "게시글 id가 올바르지 않습니다." });
     }
 
     const article = await prisma.article.findUnique({
@@ -292,7 +297,9 @@ app.patch(
     const articleId = getArticleId(req.params.id);
 
     if (!articleId) {
-      return res.status(400).json({ message: "게시글 id가 올바르지 않습니다." });
+      return res
+        .status(400)
+        .json({ message: "게시글 id가 올바르지 않습니다." });
     }
 
     const validationResult = updateArticleSchema.safeParse(req.body);
@@ -325,7 +332,9 @@ app.delete(
     const articleId = getArticleId(req.params.id);
 
     if (!articleId) {
-      return res.status(400).json({ message: "게시글 id가 올바르지 않습니다." });
+      return res
+        .status(400)
+        .json({ message: "게시글 id가 올바르지 않습니다." });
     }
 
     const article = await prisma.article.delete({
@@ -416,7 +425,9 @@ app.post(
     const articleId = getArticleId(req.params.articleId);
 
     if (!articleId) {
-      return res.status(400).json({ message: "게시글 id가 올바르지 않습니다." });
+      return res
+        .status(400)
+        .json({ message: "게시글 id가 올바르지 않습니다." });
     }
 
     const validationResult = createCommentSchema.safeParse(req.body);
@@ -455,7 +466,9 @@ app.get(
     const articleId = getArticleId(req.params.articleId);
 
     if (!articleId) {
-      return res.status(400).json({ message: "게시글 id가 올바르지 않습니다." });
+      return res
+        .status(400)
+        .json({ message: "게시글 id가 올바르지 않습니다." });
     }
 
     const article = await prisma.article.findUnique({
