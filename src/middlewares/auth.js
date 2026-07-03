@@ -1,5 +1,6 @@
 import { expressjwt } from "express-jwt";
 import articleRepository from "../repositories/articleRepository.js";
+import commentRepository from "../repositories/commentRepository.js";
 import productRepository from "../repositories/productRepository.js";
 
 function throwUnauthorizedError() {
@@ -59,10 +60,31 @@ async function verifyArticleAuth(req, res, next) {
   }
 }
 
+async function verifyCommentAuth(req, res, next) {
+  const { id: commentId } = req.params;
+  try {
+    const comment = await commentRepository.getById(commentId);
+    if (!comment) {
+      const error = new Error("댓글을 불러올 수 없습니다.");
+      error.code = 404;
+      throw error;
+    }
+    if (comment.ownerId !== req.auth.userId) {
+      const error = new Error("접근이 제한됩니다.");
+      error.code = 403;
+      throw error;
+    }
+    next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
 export default {
   throwUnauthorizedError,
   verifyAccessToken,
   verifyRefreshToken,
   verifyProductAuth,
   verifyArticleAuth,
+  verifyCommentAuth,
 };
