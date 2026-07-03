@@ -1,6 +1,8 @@
 import cookieParser from "cookie-parser";
 import "dotenv/config";
 import express from "express";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import articleRouter from "./routes/articleRouter.js";
 import commentRouter from "./routes/commentRouter.js";
@@ -11,6 +13,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/product", productRouter);
 app.use("/article", articleRouter);
