@@ -17,6 +17,7 @@ async function save(product) {
     data: {
       name: product.name,
       description: product.description,
+      favoriteCount: product.favoriteCount,
       price: product.price,
       tags: product.tags,
       images: product.images,
@@ -34,6 +35,7 @@ async function update(product) {
     data: {
       name: product.name,
       description: product.description,
+      favoriteCount: product.favoriteCount,
       price: product.price,
       tags: product.tags,
       images: product.images,
