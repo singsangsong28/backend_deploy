@@ -8,12 +8,12 @@ function throwUnauthorizedError() {
 }
 
 const verifyAccessToken = expressjwt({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_ACCESS_SECRET,
   algorithms: ["HS256"],
 });
 
 const verifyRefreshToken = expressjwt({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_REFRESH_SECRET,
   algorithms: ["HS256"],
   getToken: (req) => req.cookies.refreshToken,
 });

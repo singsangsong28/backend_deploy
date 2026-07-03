@@ -9,7 +9,7 @@ async function findById(id) {
 }
 
 async function findByEmail(email) {
-  return await prisma.User.findUnique({
+  return await prisma.user.findUnique({
     where: {
       email,
     },
@@ -17,18 +17,18 @@ async function findByEmail(email) {
 }
 
 async function save(user) {
-  return prisma.user.create({
+  return await prisma.user.create({
     data: {
       email: user.email,
       nickName: user.nickName,
-      password: user.password,
+      encryptedpassword: user.encryptedpassword,
       image: user.image,
     },
   });
 }
 
 async function update(id, data) {
-  return prisma.user.update({
+  return await prisma.user.update({
     where: {
       id,
     },
@@ -36,11 +36,11 @@ async function update(id, data) {
   });
 }
 
-async function createOrUpdate(provider, providerId, email, name) {
-  return prisma.user.upsert({
-    where: { provider, providerId },
-    update: { email, name },
-    create: { provider, providerId, email, name },
+async function createOrUpdate(provider, providerId, email, nickName) {
+  return await prisma.user.upsert({
+    where: { provider_providerId: { provider, providerId } },
+    update: { email, nickName },
+    create: { provider, providerId, email, nickName },
   });
 }
 
