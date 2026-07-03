@@ -1,4 +1,5 @@
 import { expressjwt } from "express-jwt";
+import articleRepository from "../repositories/articleRepository.js";
 import productRepository from "../repositories/productRepository.js";
 
 function throwUnauthorizedError() {
@@ -38,9 +39,30 @@ async function verifyProductAuth(req, res, next) {
   }
 }
 
+async function verifyArticleAuth(req, res, next) {
+  const { id: articleId } = req.params;
+  try {
+    const article = await articleRepository.getById(articleId);
+    if (!article) {
+      const error = new Error("게시글을 불러올 수 없습니다.");
+      error.code = 404;
+      throw error;
+    }
+    if (article.ownerId !== req.auth.userId) {
+      const error = new Error("접근이 제한됩니다.");
+      error.code = 403;
+      throw error;
+    }
+    next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
 export default {
   throwUnauthorizedError,
   verifyAccessToken,
   verifyRefreshToken,
   verifyProductAuth,
+  verifyArticleAuth,
 };

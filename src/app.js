@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import "dotenv/config";
 import express from "express";
 import errorHandler from "./middlewares/errorHandler.js";
+import articleRouter from "./routes/articleRouter.js";
 import productRouter from "./routes/productRouter.js";
 import userRouter from "./routes/userRouter.js";
 
@@ -11,6 +12,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/product", productRouter);
+app.use("/article", articleRouter);
 app.use("/", userRouter);
 
 app.use(errorHandler);
