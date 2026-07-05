@@ -102,6 +102,16 @@ const swaggerDefinition = {
           articleId: { type: "integer", nullable: true },
         },
       },
+      Like: {
+        type: "object",
+        properties: {
+          id: { type: "integer", example: 1 },
+          userId: { type: "integer", example: 1 },
+          productId: { type: "integer", nullable: true, example: 1 },
+          articleId: { type: "integer", nullable: true, example: null },
+          createdAt: { type: "string", format: "date-time" },
+        },
+      },
       Error: {
         type: "object",
         properties: {

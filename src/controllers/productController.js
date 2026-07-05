@@ -2,9 +2,7 @@ import productService from "../services/productService.js";
 
 async function getAll(req, res, next) {
   try {
-    const getAllProduct = await productService.getAll({
-      ...req.body,
-    });
+    const getAllProduct = await productService.getAll(req.auth?.userId);
     return res.status(200).json(getAllProduct);
   } catch (error) {
     next(error);
@@ -14,7 +12,7 @@ async function getAll(req, res, next) {
 async function getById(req, res, next) {
   const { id } = req.params;
   try {
-    const product = await productService.getById(id);
+    const product = await productService.getById(id, req.auth?.userId);
     return res.json(product);
   } catch (error) {
     return next(error);
@@ -55,10 +53,24 @@ async function deleteById(req, res, next) {
   }
 }
 
+async function uploadImage(req, res, next) {
+  try {
+    if (!req.file) {
+      const error = new Error("이미지 파일이 필요합니다.");
+      error.code = 400;
+      throw error;
+    }
+    return res.status(201).json({ imageUrl: `/uploads/${req.file.filename}` });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 export default {
   getAll,
   getById,
   create,
   update,
   deleteById,
+  uploadImage,
 };

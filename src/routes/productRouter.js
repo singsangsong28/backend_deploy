@@ -1,6 +1,10 @@
 import express from "express";
+import { productCreateSchema } from "../../prisma/productSchema.js";
+import likeController from "../controllers/likeController.js";
 import productController from "../controllers/productController.js";
 import auth from "../middlewares/auth.js";
+import upload from "../middlewares/upload.js";
+import validate from "../middlewares/validate.js";
 
 const productRouter = express.Router();
 
@@ -27,8 +31,6 @@ const productRouter = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Product'
  */
-productRouter.get("/", productController.getAll);
-
 /**
  * @swagger
  * /product/{id}:
@@ -51,7 +53,6 @@ productRouter.get("/", productController.getAll);
  *       404:
  *         description: 상품을 찾을 수 없음
  */
-productRouter.get("/:id", productController.getById);
 
 /**
  * @swagger
@@ -77,7 +78,55 @@ productRouter.get("/:id", productController.getById);
  *       401:
  *         description: 인증 필요
  */
-productRouter.post("/", auth.verifyAccessToken, productController.create);
+productRouter
+  .route("/")
+  .get(auth.attachUserIfPresent, productController.getAll)
+  .post(
+    auth.verifyAccessToken,
+    validate(productCreateSchema),
+    productController.create,
+  );
+
+/**
+ * @swagger
+ * /product/upload:
+ *   post:
+ *     summary: 상품 이미지 업로드
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: 업로드된 이미지 경로
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 imageUrl:
+ *                   type: string
+ *                   example: /uploads/1735999999999.jpg
+ *       400:
+ *         description: 이미지 파일 누락
+ *       401:
+ *         description: 인증 필요
+ */
+productRouter.post(
+  "/upload",
+  auth.verifyAccessToken,
+  upload.single("image"),
+  productController.uploadImage,
+);
 
 /**
  * @swagger
@@ -111,12 +160,6 @@ productRouter.post("/", auth.verifyAccessToken, productController.create);
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-productRouter.put(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyProductAuth,
-  productController.update,
-);
 
 /**
  * @swagger
@@ -140,11 +183,68 @@ productRouter.put(
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-productRouter.delete(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyProductAuth,
-  productController.deleteById,
-);
+productRouter
+  .route("/:id")
+  .get(auth.attachUserIfPresent, productController.getById)
+  .put(auth.verifyAccessToken, auth.verifyProductAuth, productController.update)
+  .delete(
+    auth.verifyAccessToken,
+    auth.verifyProductAuth,
+    productController.deleteById,
+  );
+
+/**
+ * @swagger
+ * /product/{id}/like:
+ *   post:
+ *     summary: 상품 좋아요
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: 좋아요 등록됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Like'
+ *       401:
+ *         description: 인증 필요
+ *       409:
+ *         description: 이미 좋아요를 누른 상품
+ */
+
+/**
+ * @swagger
+ * /product/{id}/like:
+ *   delete:
+ *     summary: 상품 좋아요 취소
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: 좋아요 취소됨
+ *       401:
+ *         description: 인증 필요
+ *       404:
+ *         description: 좋아요를 누르지 않은 상품
+ */
+productRouter
+  .route("/:id/like")
+  .post(auth.verifyAccessToken, likeController.likeProduct)
+  .delete(auth.verifyAccessToken, likeController.unlikeProduct);
 
 export default productRouter;

@@ -1,6 +1,8 @@
 import express from "express";
+import { commentCreateSchema } from "../../prisma/commentSchema.js";
 import commentController from "../controllers/commentController.js";
 import auth from "../middlewares/auth.js";
+import validate from "../middlewares/validate.js";
 
 const commentRouter = express.Router();
 
@@ -27,31 +29,6 @@ const commentRouter = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Comment'
  */
-commentRouter.get("/", commentController.getAll);
-
-/**
- * @swagger
- * /comment/{id}:
- *   get:
- *     summary: 댓글 상세 조회
- *     tags: [Comment]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: 댓글 상세
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Comment'
- *       404:
- *         description: 댓글을 찾을 수 없음
- */
-commentRouter.get("/:id", commentController.getById);
 
 /**
  * @swagger
@@ -77,7 +54,37 @@ commentRouter.get("/:id", commentController.getById);
  *       401:
  *         description: 인증 필요
  */
-commentRouter.post("/", auth.verifyAccessToken, commentController.create);
+commentRouter
+  .route("/")
+  .get(commentController.getAll)
+  .post(
+    auth.verifyAccessToken,
+    validate(commentCreateSchema),
+    commentController.create,
+  );
+
+/**
+ * @swagger
+ * /comment/{id}:
+ *   get:
+ *     summary: 댓글 상세 조회
+ *     tags: [Comment]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 댓글 상세
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Comment'
+ *       404:
+ *         description: 댓글을 찾을 수 없음
+ */
 
 /**
  * @swagger
@@ -111,12 +118,6 @@ commentRouter.post("/", auth.verifyAccessToken, commentController.create);
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-commentRouter.put(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyCommentAuth,
-  commentController.update,
-);
 
 /**
  * @swagger
@@ -140,11 +141,14 @@ commentRouter.put(
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-commentRouter.delete(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyCommentAuth,
-  commentController.deleteById,
-);
+commentRouter
+  .route("/:id")
+  .get(commentController.getById)
+  .put(auth.verifyAccessToken, auth.verifyCommentAuth, commentController.update)
+  .delete(
+    auth.verifyAccessToken,
+    auth.verifyCommentAuth,
+    commentController.deleteById,
+  );
 
 export default commentRouter;

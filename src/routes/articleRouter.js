@@ -1,6 +1,10 @@
 import express from "express";
+import { articleCreateSchema } from "../../prisma/articleSchema.js";
 import articleController from "../controllers/articleController.js";
+import likeController from "../controllers/likeController.js";
 import auth from "../middlewares/auth.js";
+import upload from "../middlewares/upload.js";
+import validate from "../middlewares/validate.js";
 
 const articleRouter = express.Router();
 
@@ -27,31 +31,6 @@ const articleRouter = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Article'
  */
-articleRouter.get("/", articleController.getAll);
-
-/**
- * @swagger
- * /article/{id}:
- *   get:
- *     summary: 게시글 상세 조회
- *     tags: [Article]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: 게시글 상세
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Article'
- *       404:
- *         description: 게시글을 찾을 수 없음
- */
-articleRouter.get("/:id", articleController.getById);
 
 /**
  * @swagger
@@ -77,7 +56,78 @@ articleRouter.get("/:id", articleController.getById);
  *       401:
  *         description: 인증 필요
  */
-articleRouter.post("/", auth.verifyAccessToken, articleController.create);
+articleRouter
+  .route("/")
+  .get(auth.attachUserIfPresent, articleController.getAll)
+  .post(
+    auth.verifyAccessToken,
+    validate(articleCreateSchema),
+    articleController.create,
+  );
+
+/**
+ * @swagger
+ * /article/{id}:
+ *   get:
+ *     summary: 게시글 상세 조회
+ *     tags: [Article]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 게시글 상세
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Article'
+ *       404:
+ *         description: 게시글을 찾을 수 없음
+ */
+
+/**
+ * @swagger
+ * /article/upload:
+ *   post:
+ *     summary: 게시글 이미지 업로드
+ *     tags: [Article]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: 업로드된 이미지 경로
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 imageUrl:
+ *                   type: string
+ *                   example: /uploads/1735999999999.jpg
+ *       400:
+ *         description: 이미지 파일 누락
+ *       401:
+ *         description: 인증 필요
+ */
+articleRouter.post(
+  "/upload",
+  auth.verifyAccessToken,
+  upload.single("image"),
+  articleController.uploadImage,
+);
 
 /**
  * @swagger
@@ -111,12 +161,6 @@ articleRouter.post("/", auth.verifyAccessToken, articleController.create);
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-articleRouter.put(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyArticleAuth,
-  articleController.update,
-);
 
 /**
  * @swagger
@@ -140,11 +184,68 @@ articleRouter.put(
  *       403:
  *         description: 접근 제한 (소유자가 아님)
  */
-articleRouter.delete(
-  "/:id",
-  auth.verifyAccessToken,
-  auth.verifyArticleAuth,
-  articleController.deleteById,
-);
+articleRouter
+  .route("/:id")
+  .get(auth.attachUserIfPresent, articleController.getById)
+  .put(auth.verifyAccessToken, auth.verifyArticleAuth, articleController.update)
+  .delete(
+    auth.verifyAccessToken,
+    auth.verifyArticleAuth,
+    articleController.deleteById,
+  );
+
+/**
+ * @swagger
+ * /article/{id}/like:
+ *   post:
+ *     summary: 게시글 좋아요
+ *     tags: [Article]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: 좋아요 등록됨
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Like'
+ *       401:
+ *         description: 인증 필요
+ *       409:
+ *         description: 이미 좋아요를 누른 게시글
+ */
+
+/**
+ * @swagger
+ * /article/{id}/like:
+ *   delete:
+ *     summary: 게시글 좋아요 취소
+ *     tags: [Article]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: 좋아요 취소됨
+ *       401:
+ *         description: 인증 필요
+ *       404:
+ *         description: 좋아요를 누르지 않은 게시글
+ */
+articleRouter
+  .route("/:id/like")
+  .post(auth.verifyAccessToken, likeController.likeArticle)
+  .delete(auth.verifyAccessToken, likeController.unlikeArticle);
 
 export default articleRouter;
