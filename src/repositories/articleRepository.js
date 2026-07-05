@@ -1,13 +1,23 @@
 import prisma from "../config/prisma.js";
 
-async function getAll() {
-  const articles = await prisma.article.findMany();
+async function getAll(userId) {
+  const articles = await prisma.article.findMany({
+    include: {
+      likes: {
+        where: { userId: userId ?? -1 },
+      },
+    },
+  });
   return articles;
 }
 
-async function getById(id) {
+async function getById(id, userId) {
   const article = await prisma.article.findUnique({
     where: { id: Number(id) },
+    include: {
+      comments: true,
+      likes: { where: { userId: userId ?? -1 } },
+    },
   });
   return article;
 }

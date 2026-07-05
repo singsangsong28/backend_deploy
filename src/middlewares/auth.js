@@ -3,10 +3,16 @@ import articleRepository from "../repositories/articleRepository.js";
 import commentRepository from "../repositories/commentRepository.js";
 import productRepository from "../repositories/productRepository.js";
 
+const attachUserIfPresent = expressjwt({
+  secret: process.env.JWT_ACCESS_SECRET,
+  algorithms: ["HS256"],
+  credentialsRequired: false,
+});
+
 function throwUnauthorizedError() {
   const error = new Error("권한이 없습니다");
   error.code = 401;
-  throw Error;
+  throw error;
 }
 
 const verifyAccessToken = expressjwt({
@@ -87,4 +93,5 @@ export default {
   verifyProductAuth,
   verifyArticleAuth,
   verifyCommentAuth,
+  attachUserIfPresent,
 };

@@ -1,11 +1,19 @@
 import productRepository from "../repositories/productRepository.js";
 
-async function getAll() {
-  return productRepository.getAll();
+async function getAll(userId) {
+  const products = await productRepository.getAll(userId);
+  return products.map(({ likes, ...rest }) => ({
+    ...rest,
+    isLiked: likes.length > 0,
+  }));
 }
 
-async function getById(id) {
-  return productRepository.getById(id);
+async function getById(id, userId) {
+  const product = await productRepository.getById(id, userId);
+  if (!product) return null;
+
+  const { likes, ...rest } = product;
+  return { ...rest, isLiked: likes.length > 0 };
 }
 
 async function create(product) {
