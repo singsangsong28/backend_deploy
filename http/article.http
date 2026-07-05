@@ -22,6 +22,14 @@ Authorization: Bearer {{login.response.body.$.accessToken}}
   "image": "https://example.com/image.jpg"
 }
 
+### 게시글 좋아요
+POST {{baseUrl}}/article/{{createArticle.response.body.$.id}}/like
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### 게시글 좋아요 취소
+DELETE {{baseUrl}}/article/{{createArticle.response.body.$.id}}/like
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
 ### 게시글 수정
 PUT {{baseUrl}}/article/{{createArticle.response.body.$.id}}
 Content-Type: application/json
