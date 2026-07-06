@@ -5,6 +5,24 @@ async function getAll() {
   return comments;
 }
 
+async function getAllByProduct(productId, limit) {
+  const comments = await prisma.comment.findMany({
+    where: { productId: Number(productId) },
+    orderBy: { createdAt: "desc" },
+    take: limit ? Number(limit) : undefined,
+  });
+  return comments;
+}
+
+async function getAllByArticle(articleId, limit) {
+  const comments = await prisma.comment.findMany({
+    where: { articleId: Number(articleId) },
+    orderBy: { createdAt: "desc" },
+    take: limit ? Number(limit) : undefined,
+  });
+  return comments;
+}
+
 async function getById(id) {
   const comment = await prisma.comment.findUnique({
     where: {
@@ -54,6 +72,8 @@ async function deleteById(id) {
 
 export default {
   getAll,
+  getAllByProduct,
+  getAllByArticle,
   getById,
   save,
   update,

@@ -29,7 +29,7 @@ describe("상품 API", () => {
 
   it("인증 없이 등록하면 401을 반환한다", async () => {
     const res = await request(app)
-      .post("/product")
+      .post("/products")
       .send({ name: "상품", description: "테스트 상품 설명입니다", price: 1000 });
 
     expect(res.status).toBe(401);
@@ -37,7 +37,7 @@ describe("상품 API", () => {
 
   it("유효성 검증에 실패하면 400을 반환한다", async () => {
     const res = await request(app)
-      .post("/product")
+      .post("/products")
       .set("Authorization", `Bearer ${accessToken}`)
       .send({ name: "", description: "짧음", price: -1 });
 
@@ -46,7 +46,7 @@ describe("상품 API", () => {
 
   it("정상 등록하면 201과 생성된 상품을 반환한다", async () => {
     const res = await request(app)
-      .post("/product")
+      .post("/products")
       .set("Authorization", `Bearer ${accessToken}`)
       .send({
         name: "테스트 상품",
@@ -60,7 +60,7 @@ describe("상품 API", () => {
   });
 
   it("비로그인으로 상세 조회하면 isLiked가 false이고 댓글 목록을 포함한다", async () => {
-    const res = await request(app).get(`/product/${productId}`);
+    const res = await request(app).get(`/products/${productId}`);
 
     expect(res.status).toBe(200);
     expect(res.body.isLiked).toBe(false);
@@ -69,28 +69,28 @@ describe("상품 API", () => {
 
   it("좋아요 -> 중복 좋아요(409) -> 취소 -> 중복 취소(404) 흐름이 정상 동작한다", async () => {
     const likeRes = await request(app)
-      .post(`/product/${productId}/like`)
+      .post(`/products/${productId}/favorite`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(likeRes.status).toBe(201);
 
     const duplicateRes = await request(app)
-      .post(`/product/${productId}/like`)
+      .post(`/products/${productId}/favorite`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(duplicateRes.status).toBe(409);
 
     const detailRes = await request(app)
-      .get(`/product/${productId}`)
+      .get(`/products/${productId}`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(detailRes.body.isLiked).toBe(true);
     expect(detailRes.body.favoriteCount).toBe(1);
 
     const unlikeRes = await request(app)
-      .delete(`/product/${productId}/like`)
+      .delete(`/products/${productId}/favorite`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(unlikeRes.status).toBe(204);
 
     const duplicateUnlikeRes = await request(app)
-      .delete(`/product/${productId}/like`)
+      .delete(`/products/${productId}/favorite`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(duplicateUnlikeRes.status).toBe(404);
   });
@@ -99,7 +99,7 @@ describe("상품 API", () => {
     const otherToken = await signUpAndLogin();
 
     const res = await request(app)
-      .put(`/product/${productId}`)
+      .put(`/products/${productId}`)
       .set("Authorization", `Bearer ${otherToken}`)
       .send({ name: "해킹시도" });
 

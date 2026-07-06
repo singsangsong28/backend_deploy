@@ -1,5 +1,7 @@
 import express from "express";
+import { commentCreateSchema } from "../../prisma/commentSchema.js";
 import { productCreateSchema } from "../../prisma/productSchema.js";
+import commentController from "../controllers/commentController.js";
 import likeController from "../controllers/likeController.js";
 import productController from "../controllers/productController.js";
 import auth from "../middlewares/auth.js";
@@ -243,8 +245,57 @@ productRouter
  *         description: 좋아요를 누르지 않은 상품
  */
 productRouter
-  .route("/:id/like")
+  .route("/:id/favorite")
   .post(auth.verifyAccessToken, likeController.likeProduct)
   .delete(auth.verifyAccessToken, likeController.unlikeProduct);
+
+/**
+ * @swagger
+ * /products/{id}/comments:
+ *   get:
+ *     summary: 상품 댓글 목록 조회
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 댓글 목록
+ *   post:
+ *     summary: 상품 댓글 등록
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: 등록된 댓글
+ *       401:
+ *         description: 인증 필요
+ */
+productRouter
+  .route("/:id/comments")
+  .get(commentController.getAllByProduct)
+  .post(
+    auth.verifyAccessToken,
+    (req, res, next) => {
+      req.body = { ...req.body, productId: Number(req.params.id) };
+      next();
+    },
+    validate(commentCreateSchema),
+    commentController.create,
+  );
 
 export default productRouter;

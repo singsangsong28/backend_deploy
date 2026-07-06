@@ -1,6 +1,8 @@
 import express from "express";
 import { articleCreateSchema } from "../../prisma/articleSchema.js";
+import { commentCreateSchema } from "../../prisma/commentSchema.js";
 import articleController from "../controllers/articleController.js";
+import commentController from "../controllers/commentController.js";
 import likeController from "../controllers/likeController.js";
 import auth from "../middlewares/auth.js";
 import upload from "../middlewares/upload.js";
@@ -247,5 +249,54 @@ articleRouter
   .route("/:id/like")
   .post(auth.verifyAccessToken, likeController.likeArticle)
   .delete(auth.verifyAccessToken, likeController.unlikeArticle);
+
+/**
+ * @swagger
+ * /articles/{id}/comments:
+ *   get:
+ *     summary: 게시글 댓글 목록 조회
+ *     tags: [Article]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: 댓글 목록
+ *   post:
+ *     summary: 게시글 댓글 등록
+ *     tags: [Article]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: 등록된 댓글
+ *       401:
+ *         description: 인증 필요
+ */
+articleRouter
+  .route("/:id/comments")
+  .get(commentController.getAllByArticle)
+  .post(
+    auth.verifyAccessToken,
+    (req, res, next) => {
+      req.body = { ...req.body, articleId: Number(req.params.id) };
+      next();
+    },
+    validate(commentCreateSchema),
+    commentController.create,
+  );
 
 export default articleRouter;

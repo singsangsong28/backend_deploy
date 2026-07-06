@@ -11,6 +11,30 @@ async function getAll(req, res, next) {
   }
 }
 
+async function getAllByProduct(req, res, next) {
+  try {
+    const result = await commentService.getAllByProduct(
+      req.params.id,
+      req.query.limit,
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getAllByArticle(req, res, next) {
+  try {
+    const result = await commentService.getAllByArticle(
+      req.params.id,
+      req.query.limit,
+    );
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getById(req, res, next) {
   const { id } = req.params;
   try {
@@ -57,6 +81,8 @@ async function deleteById(req, res, next) {
 
 export default {
   getAll,
+  getAllByProduct,
+  getAllByArticle,
   getById,
   create,
   update,

@@ -1,11 +1,27 @@
 import productRepository from "../repositories/productRepository.js";
 
-async function getAll(userId) {
-  const products = await productRepository.getAll(userId);
-  return products.map(({ likes, ...rest }) => ({
+async function getAll(
+  userId,
+  { page = 1, pageSize = 10, limit, orderBy, keyword } = {},
+) {
+  const take = limit ? Number(limit) : Number(pageSize);
+  const skip = limit ? 0 : (Number(page) - 1) * take;
+  const orderByClause =
+    orderBy === "favorite" ? { favoriteCount: "desc" } : { createdAt: "desc" };
+
+  const { products, totalCount } = await productRepository.getAll(userId, {
+    skip,
+    take,
+    orderBy: orderByClause,
+    keyword,
+  });
+
+  const list = products.map(({ likes, ...rest }) => ({
     ...rest,
     isLiked: likes.length > 0,
   }));
+
+  return { list, totalCount };
 }
 
 async function getById(id, userId) {

@@ -2,8 +2,15 @@ import articleService from "../services/articleService.js";
 
 async function getAll(req, res, next) {
   try {
-    const getAllArticle = await articleService.getAll(req.auth?.userId);
-    return res.status(200).json(getAllArticle);
+    const { page, pageSize, limit, orderBy, keyword } = req.query;
+    const result = await articleService.getAll(req.auth?.userId, {
+      page,
+      pageSize,
+      limit,
+      orderBy,
+      keyword,
+    });
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }

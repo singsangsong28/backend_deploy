@@ -17,9 +17,9 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use("/product", productRouter);
-app.use("/article", articleRouter);
-app.use("/comment", commentRouter);
+app.use("/products", productRouter);
+app.use("/articles", articleRouter);
+app.use("/comments", commentRouter);
 app.use("/", userRouter);
 
 app.use(errorHandler);

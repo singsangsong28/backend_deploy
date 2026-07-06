@@ -2,8 +2,15 @@ import productService from "../services/productService.js";
 
 async function getAll(req, res, next) {
   try {
-    const getAllProduct = await productService.getAll(req.auth?.userId);
-    return res.status(200).json(getAllProduct);
+    const { page, pageSize, limit, orderBy, keyword } = req.query;
+    const result = await productService.getAll(req.auth?.userId, {
+      page,
+      pageSize,
+      limit,
+      orderBy,
+      keyword,
+    });
+    return res.status(200).json(result);
   } catch (error) {
     next(error);
   }
