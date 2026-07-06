@@ -92,10 +92,21 @@ async function updateUser(id, data) {
   return filterSensitiveUserData(updateUser);
 }
 
+async function getMe(userId) {
+  const user = await userRepository.findById(userId);
+  if (!user) {
+    const error = new Error("존재하지 않는 유저입니다");
+    error.code = 404;
+    throw error;
+  }
+  return filterSensitiveUserData(user);
+}
+
 export default {
   createToken,
   refreshToken,
   updateUser,
   getUser,
   createUser,
+  getMe,
 };

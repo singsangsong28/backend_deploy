@@ -42,6 +42,15 @@ async function login(req, res, next) {
   }
 }
 
+async function getMe(req, res, next) {
+  try {
+    const user = await userService.getMe(req.auth.userId);
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function refreshToken(req, res, next) {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -66,4 +75,5 @@ export default {
   signUp,
   login,
   refreshToken,
+  getMe,
 };

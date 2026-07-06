@@ -113,4 +113,26 @@ userRouter.post(
   userController.refreshToken,
 );
 
+/**
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: 내 정보 조회
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 유저 정보
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: 인증 실패
+ *       404:
+ *         description: 존재하지 않는 유저
+ */
+userRouter.get("/users/me", auth.verifyAccessToken, userController.getMe);
+
 export default userRouter;
