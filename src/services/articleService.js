@@ -16,9 +16,12 @@ async function getAll(
     keyword,
   });
 
-  const list = articles.map(({ likes, ...rest }) => ({
+  const list = articles.map(({ likes, user, ...rest }) => ({
     ...rest,
     isLiked: likes.length > 0,
+    writer: user
+      ? { id: user.id, nickname: user.nickName, image: user.image }
+      : null,
   }));
 
   return { list, totalCount };
@@ -27,8 +30,14 @@ async function getAll(
 async function getById(id, userId) {
   const article = await articleRepository.getById(id, userId);
   if (!article) return null;
-  const { likes, ...rest } = article;
-  return { ...rest, isLiked: likes.length > 0 };
+  const { likes, user, ...rest } = article;
+  return {
+    ...rest,
+    isLiked: likes.length > 0,
+    writer: user
+      ? { id: user.id, nickname: user.nickName, image: user.image }
+      : null,
+  };
 }
 
 async function create(article) {

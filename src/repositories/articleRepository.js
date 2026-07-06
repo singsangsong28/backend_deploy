@@ -10,6 +10,7 @@ async function getAll(userId, { skip, take, orderBy, keyword } = {}) {
       where,
       include: {
         likes: { where: { userId: userId ?? -1 } },
+        user: { select: { id: true, nickName: true, image: true } },
       },
       orderBy,
       skip,
@@ -27,6 +28,7 @@ async function getById(id, userId) {
     include: {
       comments: true,
       likes: { where: { userId: userId ?? -1 } },
+      user: { select: { id: true, nickName: true, image: true } },
     },
   });
   return article;
@@ -40,6 +42,7 @@ async function save(article) {
       likeCount: article.likeCount,
       image: article.image,
       ownerId: article.ownerId,
+      userId: article.ownerId,
     },
   });
   return createArticle;

@@ -16,9 +16,10 @@ async function getAll(
     keyword,
   });
 
-  const list = products.map(({ likes, ...rest }) => ({
+  const list = products.map(({ likes, user, ...rest }) => ({
     ...rest,
     isLiked: likes.length > 0,
+    ownerNickname: user?.nickName ?? null,
   }));
 
   return { list, totalCount };
@@ -28,8 +29,12 @@ async function getById(id, userId) {
   const product = await productRepository.getById(id, userId);
   if (!product) return null;
 
-  const { likes, ...rest } = product;
-  return { ...rest, isLiked: likes.length > 0 };
+  const { likes, user, ...rest } = product;
+  return {
+    ...rest,
+    isLiked: likes.length > 0,
+    ownerNickname: user?.nickName ?? null,
+  };
 }
 
 async function create(product) {

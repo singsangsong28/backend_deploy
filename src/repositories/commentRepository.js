@@ -10,6 +10,7 @@ async function getAllByProduct(productId, limit) {
     where: { productId: Number(productId) },
     orderBy: { createdAt: "desc" },
     take: limit ? Number(limit) : undefined,
+    include: { user: { select: { id: true, nickName: true, image: true } } },
   });
   return comments;
 }
@@ -19,6 +20,7 @@ async function getAllByArticle(articleId, limit) {
     where: { articleId: Number(articleId) },
     orderBy: { createdAt: "desc" },
     take: limit ? Number(limit) : undefined,
+    include: { user: { select: { id: true, nickName: true, image: true } } },
   });
   return comments;
 }
@@ -28,6 +30,7 @@ async function getById(id) {
     where: {
       id: Number(id),
     },
+    include: { user: { select: { id: true, nickName: true, image: true } } },
   });
   return comment;
 }
