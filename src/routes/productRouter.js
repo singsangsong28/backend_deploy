@@ -189,6 +189,11 @@ productRouter
   .route("/:id")
   .get(auth.attachUserIfPresent, productController.getById)
   .put(auth.verifyAccessToken, auth.verifyProductAuth, productController.update)
+  .patch(
+    auth.verifyAccessToken,
+    auth.verifyProductAuth,
+    productController.update,
+  )
   .delete(
     auth.verifyAccessToken,
     auth.verifyProductAuth,
