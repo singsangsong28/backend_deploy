@@ -145,6 +145,11 @@ commentRouter
   .route("/:id")
   .get(commentController.getById)
   .put(auth.verifyAccessToken, auth.verifyCommentAuth, commentController.update)
+  .patch(
+    auth.verifyAccessToken,
+    auth.verifyCommentAuth,
+    commentController.update,
+  )
   .delete(
     auth.verifyAccessToken,
     auth.verifyCommentAuth,
