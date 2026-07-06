@@ -190,6 +190,11 @@ articleRouter
   .route("/:id")
   .get(auth.attachUserIfPresent, articleController.getById)
   .put(auth.verifyAccessToken, auth.verifyArticleAuth, articleController.update)
+  .patch(
+    auth.verifyAccessToken,
+    auth.verifyArticleAuth,
+    articleController.update,
+  )
   .delete(
     auth.verifyAccessToken,
     auth.verifyArticleAuth,
