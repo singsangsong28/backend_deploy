@@ -27,7 +27,11 @@ async function getAll(
 
 async function getById(id, userId) {
   const product = await productRepository.getById(id, userId);
-  if (!product) return null;
+  if (!product) {
+    const error = new Error("상품을 찾을 수 없습니다.");
+    error.code = 404;
+    throw error;
+  }
 
   const { likes, user, ...rest } = product;
   return {

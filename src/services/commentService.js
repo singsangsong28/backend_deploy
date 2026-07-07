@@ -25,7 +25,12 @@ async function getAllByArticle(articleId, limit) {
 
 async function getById(id) {
   const comment = await commentRepository.getById(id);
-  return comment ? withWriter(comment) : null;
+  if (!comment) {
+    const error = new Error("댓글을 찾을 수 없습니다.");
+    error.code = 404;
+    throw error;
+  }
+  return withWriter(comment);
 }
 
 async function create(commnet) {

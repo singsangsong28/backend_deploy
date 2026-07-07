@@ -29,7 +29,11 @@ async function getAll(
 
 async function getById(id, userId) {
   const article = await articleRepository.getById(id, userId);
-  if (!article) return null;
+  if (!article) {
+    const error = new Error("게시글을 찾을 수 없습니다.");
+    error.code = 404;
+    throw error;
+  }
   const { likes, user, ...rest } = article;
   return {
     ...rest,
